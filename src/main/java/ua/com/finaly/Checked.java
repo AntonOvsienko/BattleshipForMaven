@@ -129,7 +129,7 @@ public class Checked {
             System.out.println("Попал");
         }else {
             System.out.println("Уничтожил");
-            Vizualization.AuraBattle(player1Hit,arr);
+            Vizualization.AuraForBattle(player1Hit,arr);
         }
     }
 

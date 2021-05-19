@@ -8,7 +8,7 @@ import java.io.ObjectInputStream;
 import java.util.Scanner;
 
 public class Start {
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
 //        ObjectInputStream ois1=new ObjectInputStream(new FileInputStream("src\\main\\resources\\Player1.bin"));////Тест
 //        ObjectInputStream ois2=new ObjectInputStream(new FileInputStream("src\\main\\resources\\Player2.bin"));////Тест
         Scanner scanner=new Scanner(System.in);

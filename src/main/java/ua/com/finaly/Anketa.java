@@ -1,6 +1,7 @@
 package ua.com.finaly;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Anketa implements Serializable{
     private int[][] field;
@@ -10,6 +11,9 @@ public class Anketa implements Serializable{
     private int count2;
     private int count1;
     private int hitpoint;
+    private ArrayList<ShipClass> shipList=new ArrayList<>();
+    private ArrayList<Integer> AILogic=new ArrayList<>();
+    private boolean AILogicOn=false;
 
     public Anketa(){
         this.field=new int[10][10];
@@ -84,5 +88,29 @@ public class Anketa implements Serializable{
 
     public void setHitpoint(int hitpoint) {
         this.hitpoint = hitpoint;
+    }
+
+    public ArrayList<ShipClass> getShipList() {
+        return shipList;
+    }
+
+    public void setShipList(ArrayList<ShipClass> shipList) {
+        this.shipList = shipList;
+    }
+
+    public ArrayList<Integer> getAILogic() {
+        return AILogic;
+    }
+
+    public void setAILogic(ArrayList<Integer> AILogic) {
+        this.AILogic = AILogic;
+    }
+
+    public boolean isAILogicOn() {
+        return AILogicOn;
+    }
+
+    public void setAILogicOn(boolean AILogicOn) {
+        this.AILogicOn = AILogicOn;
     }
 }

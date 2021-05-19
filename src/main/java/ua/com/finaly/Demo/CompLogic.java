@@ -1,11 +1,14 @@
 package ua.com.finaly.Demo;
 
 import ua.com.finaly.Anketa;
-import ua.com.finaly.Checked;
+import ua.com.finaly.ShipClass;
 import ua.com.finaly.Vizualization;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Timer;
+
+import static java.lang.Thread.sleep;
 
 public class CompLogic {
 
@@ -32,6 +35,7 @@ public class CompLogic {
                     ship[x3][y3] = 1;
                     ship[x4][y4] = 1;
                     player.setField(ship);
+                    player.getShipList().add(new ShipClass(x1,y1,x2,y2,x3,y3,x4,y4));
                     Vizualization.Aura(massivfinal,player);
                 }
             }
@@ -52,6 +56,7 @@ public class CompLogic {
                 ship[x2][y2] = 1;
                 ship[x3][y3] = 1;
                 player.setField(ship);
+                player.getShipList().add(new ShipClass(x1,y1,x2,y2,x3,y3));
                 Vizualization.Aura(massivfinal,player);
             }
         }
@@ -70,6 +75,7 @@ public class CompLogic {
                 ship[x1][y1] = 1;
                 ship[x2][y2] = 1;
                 player.setField(ship);
+                player.getShipList().add(new ShipClass(x1,y1,x2,y2));
                 Vizualization.Aura(massivfinal,player);
             }
         }
@@ -84,6 +90,7 @@ public class CompLogic {
                 int y1 = massivfinal[1];
                 ship[x1][y1] = 1;
                 player.setField(ship);
+                player.getShipList().add(new ShipClass(x1,y1));
                 Vizualization.Aura(massivfinal,player);
             }
         }
@@ -127,42 +134,214 @@ public class CompLogic {
         return false;
     }
 
-    public static void LetsPlay(Anketa player1, Anketa player2){
-        Random random=new Random();
-        boolean stop=true;
+    public static void LetsPlay(Anketa player1, Anketa player2) throws InterruptedException {
         Anketa player1_enemy=new Anketa("Basic");
         Anketa player2_enemy=new Anketa("Fortran");
 
-        for (int i=0;i<10;i++){
-           int x = random.nextInt(10);
-           int y = random.nextInt(10);
+        for (int i=0;i<50;i++) {
+            Random random=new Random();
+            if (player1.isAILogicOn()) {
+                AIOn(player1, player1_enemy, player2);
+            } else {
+                int x = random.nextInt(10);
+                int y = random.nextInt(10);
+                System.out.println(x + "/" + y);
+                if (player1_enemy.getField()[x][y] == 3 || player1_enemy.getField()[x][y] == 2) {
+                    continue;
+                }
+                    AIOff(x,y,player1, player1_enemy, player2);
+                }
+                Vizualization.VizualCompVsComp(player1, player1_enemy);
+                System.out.print(1);
+                for (int z = 1; z < 5; z++) {
+                    sleep(200);
+                    System.out.print(".");
+                    sleep(200);
+                    System.out.print(".");
+                    sleep(200);
+                    System.out.print(".");
+                    sleep(200);
+                    System.out.print(".");
+                    System.out.print(z + 1);
+                }
+                System.out.println();
+            }
+    }
+    public static String ShipChecked(int x, int y,Anketa player1_enemy,Anketa player2){
+        for (ShipClass shipcounter:player2.getShipList()){
+            for (int i=0;i<shipcounter.getShip().size();i+=2){
+                if (shipcounter.getShip().get(i)==x&&shipcounter.getShip().get(1+i)==y){
+                    shipcounter.setHealth(shipcounter.getHealth()-1);
+                    if (shipcounter.getHealth()==0){
+                        int[] temp=new int[shipcounter.getAura().size()];
+                        for (int p=0;p < temp.length;p++){
+                            temp[p]=shipcounter.getAura().get(p);
+                        }
+
+                        Vizualization.AuraForBattle(player1_enemy,temp);
+                        return "убил";
+                    }
+                }
+            }
+        }
+        return "попал";
+    }
+
+    public static void AIOff(int x,int y,Anketa player1, Anketa player1_enemy, Anketa player2){
+        Random random=new Random();
+        String text="";
             System.out.println(x+"/"+y);
-           if (player1_enemy.getField()[x][y]==3||player1_enemy.getField()[x][y]==2){
-                continue;
-           }else {
-               if (player2.getField()[x][y]==1){
-                   player1_enemy.getField()[x][y]=3;
-                   ShipChecked(x,y,player1_enemy,player2);
-               } else {
-                   player1_enemy.getField()[x][y]=2;
-               }
-           }
+        if (player1_enemy.getField()[x][y]==3||player1_enemy.getField()[x][y]==2){
+            return;
+        }else {
+            if (player2.getField()[x][y] == 1) {
+                player1_enemy.getField()[x][y] = 3;
+                text = ShipChecked(x, y, player1_enemy, player2);
+                player1.setAILogicOn(true);
+                AICoordinateFuture(x,y,player1,player1_enemy);
+            } else {
+                player1_enemy.getField()[x][y] = 2;
+                text = "мимо";
+            }
+        }
+        System.out.println(player1.getName()+" выбрал координаты x(" + x +
+                "),y(" + y + ")-" + text);
+    }
+
+    public static void AIOn(Anketa player1, Anketa player1_enemy, Anketa player2){
+        String text="";
+        Random random=new Random();
+        int t = player1.getAILogic().size()/2;
+        int ji = random.nextInt(t);
+        int x = player1.getAILogic().get(ji*2);
+        player1.getAILogic().remove(ji*2);
+        int y = player1.getAILogic().get(ji*2);
+        player1.getAILogic().remove(ji*2);
+        System.out.println(x+"/"+y);
+        if (player2.getField()[x][y] == 1) {
+            player1_enemy.getField()[x][y] = 3;
+            text = ShipChecked(x, y, player1_enemy, player2);
+            if (text.equals("попал")){
+                try {
+                    if (player1_enemy.getField()[x - 1][y] == 3) {
+                        player1.getAILogic().add(x + 1);
+                        player1.getAILogic().add(y);
+                        int circle=0;
+                        for (int i=0;i<player1.getAILogic().size()-circle;i+=2){
+                            if (y!=player1.getAILogic().get(i+1)){
+                                player1.getAILogic().remove(i+1);
+                                player1.getAILogic().remove(i);
+                                circle+=2;
+                                i-=2;
+                            }
+                        }
+                    }
+                } catch (ArrayIndexOutOfBoundsException e){
+
+                }
+
+                try {
+                    if (player1_enemy.getField()[x + 1][y] == 3) {
+                        player1.getAILogic().add(x - 1);
+                        player1.getAILogic().add(y);
+                        int circle=0;
+                        for (int i=0;i<player1.getAILogic().size()-circle;i+=2){
+                            if (y!=player1.getAILogic().get(i+1)){
+                                player1.getAILogic().remove(i+1);
+                                player1.getAILogic().remove(i);
+                                circle+=2;
+                                i-=2;
+                            }
+                        }
+                    }
+                } catch (ArrayIndexOutOfBoundsException e){
+
+                }
+
+                try {
+                    if (player1_enemy.getField()[x][y-1]==3){
+                        player1.getAILogic().add(x);
+                        player1.getAILogic().add(y+1);
+                        int circle=0;
+                        for (int i=0;i<player1.getAILogic().size()-circle;i+=2){
+                            if (x!=player1.getAILogic().get(i)){
+                                player1.getAILogic().remove(i+1);
+                                player1.getAILogic().remove(i);
+                                circle+=2;
+                                i-=2;
+                            }
+                        }
+                    }
+                } catch (ArrayIndexOutOfBoundsException e){
+
+                }
+
+                try {
+                    if (player1_enemy.getField()[x][y+1]==3){
+                        player1.getAILogic().add(x);
+                        player1.getAILogic().add(y-1);
+                        int circle=0;
+                        for (int i=0;i<player1.getAILogic().size()-circle;i+=2){
+                            if (x!=player1.getAILogic().get(i)){
+                                player1.getAILogic().remove(i+1);
+                                player1.getAILogic().remove(i);
+                                circle+=2;
+                                i-=2;
+                            }
+                        }
+                    }
+                } catch (ArrayIndexOutOfBoundsException e){
+
+                }
+
+            } else {
+                player1.setAILogicOn(false);
+                player1.getAILogic().clear();
+            }
+        } else {
+            player1_enemy.getField()[x][y] = 2;
+            text = "мимо";
+        }
+        System.out.println(player1.getName()+" выбрал координаты x(" + x +
+                "),y(" + y + ")-" + text);
+    }
+
+    public static void AICoordinateFuture(int x, int y, Anketa player1, Anketa player1_enemy){
+
+        try {
+            if (player1_enemy.getField()[x - 1][y] != 3 && player1_enemy.getField()[x - 1][y] != 2) {
+                player1.getAILogic().add(x - 1);
+                player1.getAILogic().add(y);
+            }
+        } catch (ArrayIndexOutOfBoundsException e){
 
         }
-        Vizualization.VizualCompVsComp(player1,player1_enemy);
-    }
-    public static void ShipChecked(int x, int y,Anketa player1_enemy,Anketa player2){
-        int[] xy={-1,0,1,0,0,-1,0,1};
-        for (int i=0;i<xy.length;i+=2){
-            try{
-            if (player2.getField()[x+xy[i]][y+xy[i+1]]==1&&player1_enemy.getField()[x+xy[i]][y+xy[i+1]]!=3){
-                return;
-            }else if (player2.getField()[x+xy[i]][y+xy[i+1]]==1 && player1_enemy.getField()[x+xy[i]][y+xy[i+1]]==3){
 
+        try {
+            if (player1_enemy.getField()[x + 1][y] != 3 && player1_enemy.getField()[x + 1][y] != 2) {
+                player1.getAILogic().add(x + 1);
+                player1.getAILogic().add(y);
             }
-            } catch (ArrayIndexOutOfBoundsException e){
-                continue;
+        } catch (ArrayIndexOutOfBoundsException e){
+
+        }
+
+        try {
+            if (player1_enemy.getField()[x][y-1]!=3&&player1_enemy.getField()[x][y-1]!=2){
+                player1.getAILogic().add(x);
+                player1.getAILogic().add(y-1);
             }
+        } catch (ArrayIndexOutOfBoundsException e){
+
+        }
+
+        try {
+            if (player1_enemy.getField()[x][y+1]!=3&&player1_enemy.getField()[x][y+1]!=2){
+                player1.getAILogic().add(x);
+                player1.getAILogic().add(y+1);
+            }
+        } catch (ArrayIndexOutOfBoundsException e){
+
         }
     }
 }

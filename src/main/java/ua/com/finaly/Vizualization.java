@@ -101,20 +101,23 @@ public class Vizualization {
         }
         player.setField(aura);
     }
-    public static void AuraBattle(Anketa player, int[] massivfinal) {
+    public static void AuraForBattle(Anketa player, int[] massivfinal) {
         int[][] aura = player.getField();
-        for (int k = 0; k < massivfinal.length/2; k++) {
-            for (int i = massivfinal[0 + k * 2] - 1; i < massivfinal[0 + k * 2] + 2; i++) {
-                for (int j = massivfinal[1 + k * 2] - 1; j < massivfinal[1 + k * 2] + 2; j++) {
-                    if (i >= 0 && i < 10 && j >= 0 && j < 10) {
-                        if (aura[i][j] != 1 && aura[i][j] != 3) {
-                            aura[i][j] = 2;
-                        }
-                    }
-                }
-            }
+        for (int i=0;i< massivfinal.length;i+=2){
+            aura[massivfinal[i]][massivfinal[i+1]] = 2;
         }
-        player.setField(aura);
+//        for (int k = 0; k < massivfinal.length/2; k++) {
+//            for (int i = massivfinal[0 + k * 2] - 1; i < massivfinal[0 + k * 2] + 2; i++) {
+//                for (int j = massivfinal[1 + k * 2] - 1; j < massivfinal[1 + k * 2] + 2; j++) {
+//                    if (i >= 0 && i < 10 && j >= 0 && j < 10) {
+//                        if (aura[i][j] != 1 && aura[i][j] != 3) {
+//                            aura[i][j] = 2;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        player.setField(aura);
     }
     public static void AuraClear(Anketa player) {
         int[][] aura = player.getField();
