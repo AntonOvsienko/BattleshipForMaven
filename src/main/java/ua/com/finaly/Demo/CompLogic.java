@@ -134,24 +134,23 @@ public class CompLogic {
         return false;
     }
 
-    public static void LetsPlay(Anketa player1, Anketa player2) throws InterruptedException {
-        Anketa player1_enemy=new Anketa("Basic");
-        Anketa player2_enemy=new Anketa("Fortran");
+    public static void LetsPlay(Anketa player1, Anketa player1_enemy,Anketa player2, Anketa player2_enemy) throws InterruptedException {
+        Boolean turn=false;
+            do {
+                Random random = new Random();
+                if (player1.isAILogicOn()) {
+                    turn=AIOn(player1, player1_enemy, player2,turn);
+                } else {
+                    int x = random.nextInt(10);
+                    int y = random.nextInt(10);
+                    System.out.println(x + "/" + y);
+                    if (player1_enemy.getField()[x][y] == 3 || player1_enemy.getField()[x][y] == 2) {
+                        continue;
+                    }
+                    turn=AIOff(x, y, player1, player1_enemy, player2,turn);
+                }
 
-        for (int i=0;i<50;i++) {
-            Random random=new Random();
-            if (player1.isAILogicOn()) {
-                AIOn(player1, player1_enemy, player2);
-            } else {
-                int x = random.nextInt(10);
-                int y = random.nextInt(10);
-                System.out.println(x + "/" + y);
-                if (player1_enemy.getField()[x][y] == 3 || player1_enemy.getField()[x][y] == 2) {
-                    continue;
-                }
-                    AIOff(x,y,player1, player1_enemy, player2);
-                }
-                Vizualization.VizualCompVsComp(player1, player1_enemy);
+                Vizualization.VizualCompVsComp(player2_enemy,player1_enemy);
                 System.out.print(1);
                 for (int z = 1; z < 5; z++) {
                     sleep(200);
@@ -165,7 +164,7 @@ public class CompLogic {
                     System.out.print(z + 1);
                 }
                 System.out.println();
-            }
+            } while (turn);
     }
     public static String ShipChecked(int x, int y,Anketa player1_enemy,Anketa player2){
         for (ShipClass shipcounter:player2.getShipList()){
@@ -177,7 +176,6 @@ public class CompLogic {
                         for (int p=0;p < temp.length;p++){
                             temp[p]=shipcounter.getAura().get(p);
                         }
-
                         Vizualization.AuraForBattle(player1_enemy,temp);
                         return "убил";
                     }
@@ -187,28 +185,29 @@ public class CompLogic {
         return "попал";
     }
 
-    public static void AIOff(int x,int y,Anketa player1, Anketa player1_enemy, Anketa player2){
+    public static Boolean AIOff(int x,int y,Anketa player1, Anketa player1_enemy, Anketa player2,Boolean turn){
         Random random=new Random();
         String text="";
             System.out.println(x+"/"+y);
-        if (player1_enemy.getField()[x][y]==3||player1_enemy.getField()[x][y]==2){
-            return;
-        }else {
             if (player2.getField()[x][y] == 1) {
                 player1_enemy.getField()[x][y] = 3;
                 text = ShipChecked(x, y, player1_enemy, player2);
-                player1.setAILogicOn(true);
-                AICoordinateFuture(x,y,player1,player1_enemy);
+                if (text.equals("попал")){
+                    player1.setAILogicOn(true);
+                    AICoordinateFuture(x,y,player1,player1_enemy);
+                }
+                turn = true;
             } else {
                 player1_enemy.getField()[x][y] = 2;
                 text = "мимо";
+                turn = false;
             }
-        }
         System.out.println(player1.getName()+" выбрал координаты x(" + x +
                 "),y(" + y + ")-" + text);
+            return turn;
     }
 
-    public static void AIOn(Anketa player1, Anketa player1_enemy, Anketa player2){
+    public static Boolean AIOn(Anketa player1, Anketa player1_enemy, Anketa player2, Boolean turn){
         String text="";
         Random random=new Random();
         int t = player1.getAILogic().size()/2;
@@ -222,6 +221,7 @@ public class CompLogic {
             player1_enemy.getField()[x][y] = 3;
             text = ShipChecked(x, y, player1_enemy, player2);
             if (text.equals("попал")){
+                turn=true;
                 try {
                     if (player1_enemy.getField()[x - 1][y] == 3) {
                         player1.getAILogic().add(x + 1);
@@ -301,9 +301,11 @@ public class CompLogic {
         } else {
             player1_enemy.getField()[x][y] = 2;
             text = "мимо";
+            turn = false;
         }
         System.out.println(player1.getName()+" выбрал координаты x(" + x +
                 "),y(" + y + ")-" + text);
+        return turn;
     }
 
     public static void AICoordinateFuture(int x, int y, Anketa player1, Anketa player1_enemy){
